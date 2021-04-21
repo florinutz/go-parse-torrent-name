@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-var updateGoldenFiles = flag.Bool("update", false, "update golden files in testdata/")
+var updateFiles = flag.Bool("update", false, "update files in testdata/")
 
 var testData = []string{
 	"The Walking Dead S05E03 720p HDTV x264-ASAP[ettv]",
@@ -100,34 +100,34 @@ var testData = []string{
 
 func TestParser(t *testing.T) {
 	for i, fname := range testData {
-		t.Run(fmt.Sprintf("golden_file_%03d", i), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
 			tor, err := Parse(fname)
 			if err != nil {
 				t.Fatalf("test %v: parser error:\n  %v", i, err)
 			}
 
-			goldenFilename := filepath.Join("testdata", fmt.Sprintf("golden_file_%03d.json", i))
+			filename := filepath.Join("testdata", fmt.Sprintf("%03d.json", i))
 
-			if *updateGoldenFiles {
+			if *updateFiles {
 				buf, err := json.MarshalIndent(tor, "", "  ")
 				if err != nil {
 					t.Fatalf("error marshaling result: %v", err)
 				}
 
-				if err = ioutil.WriteFile(goldenFilename, buf, 0644); err != nil {
-					t.Fatalf("unable to update golden file: %v", err)
+				if err = ioutil.WriteFile(filename, buf, 0644); err != nil {
+					t.Fatalf("unable to update file: %v", err)
 				}
 			}
 
-			buf, err := ioutil.ReadFile(goldenFilename)
+			buf, err := ioutil.ReadFile(filename)
 			if err != nil {
-				t.Fatalf("error loading golden file: %v", err)
+				t.Fatalf("error loading file: %v", err)
 			}
 
 			var want TorrentInfo
 			err = json.Unmarshal(buf, &want)
 			if err != nil {
-				t.Fatalf("error unmarshalling golden file %v: %v", goldenFilename, err)
+				t.Fatalf("error unmarshalling file %v: %v", filename, err)
 			}
 
 			if !reflect.DeepEqual(*tor, want) {
